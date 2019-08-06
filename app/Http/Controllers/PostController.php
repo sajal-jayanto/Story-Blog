@@ -1,8 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use App\Story;
+use Auth;
+use DB; 
 
 class PostController extends Controller
 {
@@ -13,7 +17,10 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        $posts = DB::table('stories')->join('users' , 'stories.user_id' ,'=' , 'users.id')
+        ->select('stories.id' ,'stories.title' , 'stories.description', 'stories.category', 'stories.image' , 'stories.created_at' ,'users.name' ) 
+        ->get();
+        return view('post.all-post')->with('posts' , $posts);
     }
 
     /**
@@ -23,7 +30,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('post.all-post');
+        return view('post.create-post');
     }
 
     /**
@@ -34,7 +41,29 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'category' => 'required|string',
+            'image' => 'image|max:1999',
+        ]);
+        if (!$validator->fails())
+        {
+            $story = new Story;
+            $story->title = $request->input('title');
+            $story->category = $request->input('category');
+            $story->description = $request->input('description');
+            $story->user_id = Auth::user()->id;
+            if($request->hasFile('image'))
+            {
+                $name = Auth::user()->id.'_'.time().'.'.$request->file('image')->getClientOriginalExtension();
+                $story->image = $name;
+                $request->file('image')->storeAs('public/images', $name);  
+            } 
+            $story->save();
+            return redirect()->intended(route('posts.index')); 
+        }
+        return redirect()->intended(route('posts.create'));
     }
 
     /**
@@ -45,7 +74,8 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        //
+        $posts = Story::find($id);
+        return view('post.show-post')->with('post' , $posts);
     }
 
     /**
@@ -56,7 +86,8 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        //
+        $posts = Story::find($id);
+        return view('post.edit-post')->with('post' , $posts);
     }
 
     /**
@@ -68,7 +99,29 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'category' => 'required|string',
+            'image' => 'image|max:1999',
+        ]);
+        if (!$validator->fails())
+        {
+            $story = Story::find($id);
+            $story->title = $request->input('title');
+            $story->category = $request->input('category');
+            $story->description = $request->input('description');
+            if($request->hasFile('image'))
+            {
+                Storage::delete('public/images/'.$story->image);
+                $name = Auth::user()->id.'_'.time().'.'.$request->file('image')->getClientOriginalExtension();
+                $story->image = $name;
+                $request->file('image')->storeAs('public/images', $name);  
+            } 
+            $story->save();
+            return redirect()->intended(route('posts.index')); 
+        }
+        return redirect()->intended(route('posts.edit' , $id));
     }
 
     /**
@@ -79,6 +132,8 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $story = Story::find($id);
+        $story->delete();
+        return redirect()->intended(route('posts.index'));
     }
 }
