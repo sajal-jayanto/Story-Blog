@@ -16,6 +16,20 @@
                     <p> {!! $post->description !!} </p>
                 </div>
             </div>
+            @foreach ($comments as $comment)
+                <div>
+                    {{ $comment->comment }}
+                    <br>
+                </div>
+            @endforeach
+            <form method="POST" action="{{ route('comment.id' , $post->id) }}">
+                @csrf
+                <div class="form-group">
+                    <label for="comment">Post Your Comment:</label>
+                    <textarea class="form-control" rows="3" name="comment"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary float-right">Post</button>
+            </form>
         </div>
     </div>
 </div>

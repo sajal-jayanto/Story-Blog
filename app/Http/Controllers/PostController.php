@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Story;
 use Auth;
+use App\Comment;
 use DB; 
 
 class PostController extends Controller
@@ -85,7 +86,8 @@ class PostController extends Controller
     public function show($id)
     {
         $posts = Story::find($id);
-        return view('post.show-post')->with('post' , $posts);
+        $comments = Comment::where('post_id' , $id)->get();
+        return view('post.show-post')->with('post' , $posts)->with('comments' , $comments);
     }
 
     /**

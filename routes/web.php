@@ -17,5 +17,5 @@ Route::get('/', function () {
 
 Auth::routes();
 
-
 Route::resource('posts' , 'PostController');
+Route::post('comment/{id}' , 'CommentController@store')->name('comment.id');
