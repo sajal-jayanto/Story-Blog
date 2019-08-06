@@ -32,15 +32,17 @@
                         <small class="card-title">by {{$post->name}}</small>
                         <br>
                         <small> <p class="card-text">{{$post->created_at}}</p> </small> 
-                        <div class="float-right form-inline">
-                            <a href="{{ route('posts.edit' , $post->id) }}" class="btn btn-primary">Edit</a>
-                            <form class="pl-2" action="{{ url('posts', ['id' => $post->id]) }}" method="post">
-                                @csrf
-                                <input class="btn btn-danger" type="submit" value="Delete" />
-                                <input type="hidden" name="_method" value="delete" />
-                            </form>
-                            
-                        </div>
+                        @if(Auth::user() && Auth::user()->id == $post->user_id)
+                            <div class="float-right form-inline">
+                                <a href="{{ route('posts.edit' , $post->id) }}" class="btn btn-primary">Edit</a>
+                                <form class="pl-2" action="{{ url('posts', ['id' => $post->id]) }}" method="post">
+                                    @csrf
+                                    <input class="btn btn-danger" type="submit" value="Delete" />
+                                    <input type="hidden" name="_method" value="delete" />
+                                </form>
+                                
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

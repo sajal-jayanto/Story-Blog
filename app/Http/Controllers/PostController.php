@@ -18,7 +18,7 @@ class PostController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth')->except('index' , 'show');
+        $this->middleware('auth')->except('index' , 'show' , 'about');
     }
 
     /**
@@ -29,7 +29,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = DB::table('stories')->join('users' , 'stories.user_id' ,'=' , 'users.id')
-        ->select('stories.id' ,'stories.title' , 'stories.description', 'stories.category', 'stories.image' , 'stories.created_at' ,'users.name' ) 
+        ->select('stories.id' ,'stories.title' , 'stories.description', 'stories.category', 'stories.image' , 'stories.user_id' , 'stories.created_at' ,'users.name') 
         ->get();
         return view('post.all-post')->with('posts' , $posts);
     }
