@@ -11,6 +11,16 @@ use DB;
 class PostController extends Controller
 {
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth')->except('index' , 'show');
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -61,9 +71,9 @@ class PostController extends Controller
                 $request->file('image')->storeAs('public/images', $name);  
             } 
             $story->save();
-            return redirect()->intended(route('posts.index')); 
+            return redirect()->intended(route('posts.index'))->with('success' , 'New Post Created'); 
         }
-        return redirect()->intended(route('posts.create'));
+        return redirect()->intended(route('posts.create'))->withErrors($validator);
     }
 
     /**
@@ -119,9 +129,9 @@ class PostController extends Controller
                 $request->file('image')->storeAs('public/images', $name);  
             } 
             $story->save();
-            return redirect()->intended(route('posts.index')); 
+            return redirect()->intended(route('posts.index'))->with('success' , 'Post Updated'); 
         }
-        return redirect()->intended(route('posts.edit' , $id));
+        return redirect()->intended(route('posts.edit' , $id))->withErrors($validator);
     }
 
     /**
@@ -134,6 +144,6 @@ class PostController extends Controller
     {
         $story = Story::find($id);
         $story->delete();
-        return redirect()->intended(route('posts.index'));
+        return redirect()->intended(route('posts.index'))->with('success' , 'Post Deleted');
     }
 }
